@@ -15,6 +15,8 @@ const PORT = process.env.PORT || 3000;
 const api = require('./api/api');
 app.use('/api', api);
 
+const budget = require('./route/budget');
+api.use('/budget', budget);
 
 
 app.listen(PORT, () => {
