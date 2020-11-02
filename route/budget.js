@@ -26,7 +26,7 @@ budget.post('/', (req, res, next) => {
     let length = budgets.length;
     length+=1;
     toAdd["id"] = length;
-    if (toAdd.name) {
+    if (toAdd.name && toAdd.total) {
         budgets.push(toAdd);
         res.status(201).send(budgets[budgets.length-1]);
     } else {
@@ -39,6 +39,36 @@ budget.delete('/:id', (req, res, next) => {
         index--;
         budgets.splice(index, 1);
         res.status(204).send();
+    } else {
+        res.status(404).send();
+    }
+})
+budget.put('/:id', (req, res, next) => {
+    let index = req.params.id;
+    if (index <= budgets.length) {
+        index--;
+        let ID = Number(index);
+        ID++;
+        req.body["id"] = ID;
+        budgets[index] = req.body;
+        res.send(budgets[index]);
+    } else {
+        res.status(404).send();
+    }
+})
+budget.post('/transfer/:from/:to', (req, res, next) => {
+    const from = req.params.from;
+    const to = req.params.to;
+    const sendFrom = budgets.findIndex(e => {
+        return e["name"] == from;
+    })
+    const receive = budgets.findIndex(e => {
+        return e["name"] == to;
+    })
+    if (sendFrom !== -1 && receive !== -1) {
+        budgets[sendFrom]["total"]-=Number(req.query.amount);
+        budgets[receive]["total"]+=Number(req.query.amount);
+        res.send(201).send([budgets[sendFrom], budgets[receive]]);
     } else {
         res.status(404).send();
     }
